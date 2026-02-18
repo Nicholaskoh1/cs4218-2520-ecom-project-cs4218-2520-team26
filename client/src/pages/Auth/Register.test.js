@@ -46,6 +46,7 @@ describe('Register Component', () => {
   });
 
   it('should register the user successfully', async () => {
+    axios.get.mockResolvedValueOnce({ data: { category: [] } }); 
     axios.post.mockResolvedValueOnce({ data: { success: true } });
 
     const { getByText, getByPlaceholderText } = render(
@@ -71,6 +72,7 @@ describe('Register Component', () => {
   });
 
   it('should display error message on failed registration', async () => {
+    axios.get.mockResolvedValueOnce({ data: { category: [] } }); 
     axios.post.mockRejectedValueOnce({ message: 'User already exists' });
 
     const { getByText, getByPlaceholderText } = render(

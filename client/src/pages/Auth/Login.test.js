@@ -42,9 +42,10 @@ window.matchMedia = window.matchMedia || function() {
 describe('Login Component', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        axios.get.mockResolvedValue({ data: { category: [] } });
     });
 
-    it('renders login form', () => {
+    it('renders login form', async() => {
         const { getByText, getByPlaceholderText } = render(
           <MemoryRouter initialEntries={['/login']}>
             <Routes>
@@ -52,12 +53,16 @@ describe('Login Component', () => {
             </Routes>
           </MemoryRouter>
         );
+
+        await waitFor(() => {
+          expect(axios.get).toHaveBeenCalled();
+        });
     
         expect(getByText('LOGIN FORM')).toBeInTheDocument();
         expect(getByPlaceholderText('Enter Your Email')).toBeInTheDocument();
         expect(getByPlaceholderText('Enter Your Password')).toBeInTheDocument();
       });
-      it('inputs should be initially empty', () => {
+      it('inputs should be initially empty', async () => {
         const { getByText, getByPlaceholderText } = render(
           <MemoryRouter initialEntries={['/login']}>
             <Routes>
@@ -65,13 +70,17 @@ describe('Login Component', () => {
             </Routes>
           </MemoryRouter>
         );
+
+        await waitFor(() => {
+          expect(axios.get).toHaveBeenCalled();
+        });
     
         expect(getByText('LOGIN FORM')).toBeInTheDocument();
         expect(getByPlaceholderText('Enter Your Email').value).toBe('');
         expect(getByPlaceholderText('Enter Your Password').value).toBe('');
       });
     
-      it('should allow typing email and password', () => {
+      it('should allow typing email and password', async () => {
         const { getByText, getByPlaceholderText } = render(
           <MemoryRouter initialEntries={['/login']}>
             <Routes>
@@ -79,6 +88,11 @@ describe('Login Component', () => {
             </Routes>
           </MemoryRouter>
         );
+
+        await waitFor(() => {
+          expect(axios.get).toHaveBeenCalled();
+        });
+
         fireEvent.change(getByPlaceholderText('Enter Your Email'), { target: { value: 'test@example.com' } });
         fireEvent.change(getByPlaceholderText('Enter Your Password'), { target: { value: 'password123' } });
         expect(getByPlaceholderText('Enter Your Email').value).toBe('test@example.com');
