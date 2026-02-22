@@ -8,6 +8,10 @@ export const hashPassword = async (password) => {
 
     } catch (error) {
         console.log(error);
+        res.status(401).send({
+            success: false,
+            message: "Error hashing password",
+        });
     }
 };
 
