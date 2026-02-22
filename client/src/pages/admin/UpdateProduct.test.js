@@ -76,14 +76,16 @@ describe("UpdateProduct", () => {
         });
     });
 
-    it("renders Update Product page", async () => {
+    it("displays the Update Product screen with key actions", async () => {
         // Arrange + Act
         render(<UpdateProduct />);
 
         // Assert
-        expect(screen.getByText("Update Product")).toBeInTheDocument();
-        expect(screen.getByText("UPDATE PRODUCT")).toBeInTheDocument();
-        expect(screen.getByText("DELETE PRODUCT")).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByText("Update Product")).toBeInTheDocument();
+            expect(screen.getByText("UPDATE PRODUCT")).toBeInTheDocument();
+            expect(screen.getByText("DELETE PRODUCT")).toBeInTheDocument();
+        });
     });
 
     it("loads product data into form fields on initial load", async () => {
