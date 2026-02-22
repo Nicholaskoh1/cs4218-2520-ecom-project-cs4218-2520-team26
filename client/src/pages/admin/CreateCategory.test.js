@@ -4,7 +4,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import CreateCategory from "./CreateCategory";
 
-// Emberlynn Loo, A0255614E
+//Emberlynn Loo, A0255614E
 
 jest.mock("axios");
 
