@@ -6,4 +6,5 @@ node_modules
 
 .env
 
-/coverage/
+coverage/
+package-lock.json
