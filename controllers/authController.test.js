@@ -144,6 +144,7 @@ describe("authController - Profile and Orders", () => {
             // Arrange
             req.body = { name: "John" };
             userModel.findById.mockRejectedValue(new Error("Database error"));
+            jest.spyOn(console, "log").mockImplementation(() => {});
 
             // Act
             await updateProfileController(req, res);
@@ -155,6 +156,7 @@ describe("authController - Profile and Orders", () => {
                 message: "Error While Updating Profile",
                 error: new Error("Database error"),
             });
+            console.log.mockRestore()
         });
 
         it("should preserve existing user data when fields not provided (EP: Only name changes)", async () => {
@@ -249,6 +251,7 @@ describe("authController - Profile and Orders", () => {
                     populate: jest.fn().mockRejectedValue(new Error("Database error")),
                 }),
             });
+            jest.spyOn(console, "log").mockImplementation(() => {});
 
             // Act
             await getOrdersController(req, res);
@@ -260,6 +263,7 @@ describe("authController - Profile and Orders", () => {
                 message: "Error While Getting Orders",
                 error: new Error("Database error"),
             });
+            console.log.mockRestore();
         });
 
         it("should return empty array when user has no orders", async () => {
@@ -314,6 +318,7 @@ describe("authController - Profile and Orders", () => {
                     }),
                 }),
             });
+            jest.spyOn(console, "log").mockImplementation(() => {});
 
             // Act
             await getAllOrdersController(req, res);
@@ -325,6 +330,7 @@ describe("authController - Profile and Orders", () => {
                 message: "Error While Getting Orders",
                 error: new Error("Database error"),
             });
+            console.log.mockRestore();
         });
 
         it("should return empty array when no orders exist", async () => {
@@ -372,6 +378,7 @@ describe("authController - Profile and Orders", () => {
             req.params = { orderId: "order123" };
             req.body = { status: "Shipped" };
             orderModel.findByIdAndUpdate.mockRejectedValue(new Error("Database error"));
+            jest.spyOn(console, "log").mockImplementation(() => {});
 
             // Act
             await orderStatusController(req, res);
@@ -383,6 +390,8 @@ describe("authController - Profile and Orders", () => {
                 message: "Error While Updating Order",
                 error: new Error("Database error"),
             });
+
+            console.log.mockRestore();
         });
     });
 });
