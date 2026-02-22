@@ -23,7 +23,7 @@ describe("Orders Component", () => {
     });
 
     describe("Layout Rendering", () => {
-        it("should render Orders heading", () => {
+        it("should render Orders heading", async () => {
             // Arrange
             useAuth.mockReturnValue([{ token: "test-token" }, jest.fn()]);
             axios.get.mockResolvedValue({ data: [] });
@@ -32,10 +32,12 @@ describe("Orders Component", () => {
             render(<Orders />);
 
             // Assert
-            expect(screen.getByText("All Orders")).toBeInTheDocument();
+            await waitFor(() => {
+                expect(screen.getByText("All Orders")).toBeInTheDocument();
+            });
         });
 
-        it("should render UserMenu component", () => {
+        it("should render UserMenu component", async () => {
             // Arrange
             useAuth.mockReturnValue([{ token: "test-token" }, jest.fn()]);
             axios.get.mockResolvedValue({ data: [] });
@@ -44,7 +46,9 @@ describe("Orders Component", () => {
             render(<Orders />);
 
             // Assert
-            expect(screen.getByTestId("user-menu")).toBeInTheDocument();
+            await waitFor(() => {
+                expect(screen.getByTestId("user-menu")).toBeInTheDocument();
+            });
         });
     });
 
