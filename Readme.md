@@ -66,6 +66,28 @@
    - models/productModel.js
    - config/db.js
 
+ **Emberlynn Loo, A0255614E**
+ - Client
+   - components/Form/CategoryForm.js
+   - pages/admin/CreateCategory.js
+   - pages/admin/CreateProduct.js
+   - pages/admin/UpdateProduct.js
+   - pages/admin/AdminOrders.js
+   - pages/admin/Products.js
+   - components/Routes/Private.js
+   - components/UserMenu.js
+   - pages/user/Dashboard.js
+   - pages/ProductDetails.js
+   - pages/CategoryProduct.js
+
+ - Server
+   - controllers/categoryController.js
+      - createCategoryController
+      - updateCategoryController
+      - deleteCategoryController
+   - models/userModel.js
+
+
 
 
 ## 1. Project Introduction
