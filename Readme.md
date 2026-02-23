@@ -87,7 +87,22 @@
       - deleteCategoryController
    - models/userModel.js
 
+ **Nicholas Koh Zi Lun, A0272806B**
+ - Client
+    - context/auth.js
+    - pages/Auth/Register.js
+    - pages/Auth/Login.js
+    - components/AdminMenu.js
+    - pages/admin/AdminDashboard.js
 
+ - Server
+   - helpers/authHelper.js
+   - middleware/authMiddleware.js
+   - controllers/authController.js
+      - registerController
+      - loginController
+      - forgotPasswordController
+      - testController
 
 
 ## 1. Project Introduction

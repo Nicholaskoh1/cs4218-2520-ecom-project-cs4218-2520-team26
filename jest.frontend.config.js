@@ -29,19 +29,21 @@ export default {
     "<rootDir>/client/src/pages/*.test.js",
     "<rootDir>/client/src/components/Form/*.test.js",
     "<rootDir>/client/src/components/Routes/*.test.js",
+    "<rootDir>/client/src/hooks/*.test.js",
   ],
 
   // jest code coverage
   collectCoverage: true,
-  collectCoverageFrom: ["client/src/pages/Auth/**",
+  collectCoverageFrom: [
     "client/src/context/**",
     "client/src/components/**",
-    "client/src/pages/**"
+    "client/src/pages/**",
+    "client/src/hooks/**",
   ],
   coverageThreshold: {
     global: {
-      lines: 0,
-      functions: 0,
+      lines: 95,
+      functions: 95,
     },
   },
   setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
