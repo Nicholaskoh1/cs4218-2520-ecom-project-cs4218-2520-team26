@@ -4,23 +4,23 @@ import "@testing-library/jest-dom";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 
 jest.mock(
-    "axios",
-    () => ({
-        __esModule: true,
-        default: {
-            get: jest.fn(),
-            defaults: {
-                headers: {
-                    common: {},
-                },
-            },
+  "axios",
+  () => ({
+    __esModule: true,
+    default: {
+      get: jest.fn(),
+      defaults: {
+        headers: {
+          common: {},
         },
-    }),
-    { virtual: true }
+      },
+    },
+  }),
+  { virtual: true }
 );
 
-jest.mock("../../client/src/components/Form/SearchInput", () => () => (
-    <div data-testid="search-input">SearchInput</div>
+jest.mock("client/src/components/Form/SearchInput", () => () => (
+  <div data-testid="search-input">SearchInput</div>
 ));
 
 jest.mock(
@@ -47,12 +47,12 @@ jest.mock(
     { virtual: true }
 );
 
-import Layout from "../../client/src/components/Layout";
-import { AuthProvider } from "../../client/src/context/auth";
-import { CartProvider } from "../../client/src/context/cart";
-import { renderWithProviders } from "../helpers/renderWithProviders";
-import { setupMockLocalStorage } from "../helpers/mockLocalStorage";
-import { mockCategoryApi } from "../helpers/mockCategoryApi";
+import Layout from "client/src/components/Layout";
+import { AuthProvider } from "client/src/context/auth";
+import { CartProvider } from "client/src/context/cart";
+import { renderWithProviders } from "../../helpers/renderWithProviders";
+import { setupMockLocalStorage } from "../../helpers/mockLocalStorage";
+import { mockCategoryApi } from "../../helpers/mockCategoryApi";
 import toast from "react-hot-toast";
 
 describe("Layout + Header + Footer Integration", () => {

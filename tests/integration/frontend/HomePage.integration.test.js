@@ -2,17 +2,33 @@
 // Integration tests for HomePage with real CartProvider and mocked axios
 
 import React from "react";
-import { MemoryRouter } from "react-router-dom";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
 
-import { CartProvider, useCart } from "../context/cart";
-import HomePage from "./HomePage";
+import HomePage from "client/src/pages/HomePage";
+import { useCart } from "client/src/context/cart";
+import { renderWithProviders } from "../../helpers/renderWithProviders";
+import { setupMockLocalStorage } from "../../helpers/mockLocalStorage";
 
-jest.mock("axios");
+jest.mock(
+  "axios",
+  () => ({
+    __esModule: true,
+    default: {
+      get: jest.fn(),
+      post: jest.fn(),
+      defaults: {
+        headers: {
+          common: {},
+        },
+      },
+    },
+  }),
+  { virtual: true }
+);
 
-jest.mock("../components/Layout", () => ({
+jest.mock("client/src/components/Layout", () => ({
   __esModule: true,
   default: ({ children }) => <div>{children}</div>,
 }));
@@ -22,20 +38,18 @@ const CartStateConsumer = () => {
   return <div data-testid="cart-size">{cart.length}</div>;
 };
 
-const renderWithProviders = () =>
-  render(
-    <MemoryRouter>
-      <CartProvider>
-        <CartStateConsumer />
-        <HomePage />
-      </CartProvider>
-    </MemoryRouter>
+const renderHomePage = () =>
+  renderWithProviders(
+    <>
+      <CartStateConsumer />
+      <HomePage />
+    </>
   );
 
 describe("HomePage integration with real CartProvider", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    window.localStorage.clear();
+    setupMockLocalStorage();
   });
 
   it("fetches and renders products on page load", async () => {
@@ -64,16 +78,16 @@ describe("HomePage integration with real CartProvider", () => {
     axios.get
       .mockResolvedValueOnce({
         data: { success: true, category: categories },
-      }) // categories
+      })
       .mockResolvedValueOnce({
         data: { total: products.length },
-      }) // total count
+      })
       .mockResolvedValueOnce({
         data: { products },
-      }); // initial product list
+      });
 
     // Act
-    renderWithProviders();
+    renderHomePage();
 
     // Assert
     await waitFor(() => {
@@ -106,7 +120,7 @@ describe("HomePage integration with real CartProvider", () => {
       });
 
     // Act
-    renderWithProviders();
+    renderHomePage();
 
     await waitFor(() =>
       expect(screen.getByText("Product 1")).toBeInTheDocument()
@@ -155,7 +169,7 @@ describe("HomePage integration with real CartProvider", () => {
       });
 
     // Act
-    renderWithProviders();
+    renderHomePage();
 
     await waitFor(() =>
       expect(screen.getByText("Product 1")).toBeInTheDocument()
@@ -198,19 +212,19 @@ describe("HomePage integration with real CartProvider", () => {
     axios.get
       .mockResolvedValueOnce({
         data: { success: true, category: [] },
-      }) // categories
+      })
       .mockResolvedValueOnce({
         data: { total: 2 },
-      }) // total count
+      })
       .mockResolvedValueOnce({
         data: { products: firstPageProducts },
-      }) // first page
+      })
       .mockResolvedValueOnce({
         data: { products: secondPageProducts },
-      }); // second page (load more)
+      });
 
     // Act
-    renderWithProviders();
+    renderHomePage();
 
     await waitFor(() =>
       expect(screen.getByText("Product 1")).toBeInTheDocument()
@@ -249,7 +263,7 @@ describe("HomePage integration with real CartProvider", () => {
     });
 
     // Act
-    renderWithProviders();
+    renderHomePage();
 
     const cat1Checkbox = await screen.findByLabelText("Cat 1");
     await userEvent.click(cat1Checkbox);

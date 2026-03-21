@@ -3,52 +3,52 @@ import { screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 jest.mock(
-    "axios",
-    () => ({
-        __esModule: true,
-        default: {
-            get: jest.fn(),
-            defaults: {
-                headers: {
-                    common: {},
-                },
-            },
+  "axios",
+  () => ({
+    __esModule: true,
+    default: {
+      get: jest.fn(),
+      defaults: {
+        headers: {
+          common: {},
         },
-    }),
-    { virtual: true }
+      },
+    },
+  }),
+  { virtual: true }
 );
 
-jest.mock("../../client/src/components/Form/SearchInput", () => () => (
-    <div data-testid="search-input">SearchInput</div>
+jest.mock("client/src/components/Form/SearchInput", () => () => (
+  <div data-testid="search-input">SearchInput</div>
 ));
 
 jest.mock(
-    "antd",
-    () => ({
-        Badge: ({ count, children }) => (
-            <div data-testid="badge" data-count={count}>
-                {children}
-            </div>
-        ),
-    }),
-    { virtual: true }
+  "antd",
+  () => ({
+    Badge: ({ count, children }) => (
+      <div data-testid="badge" data-count={count}>
+        {children}
+      </div>
+    ),
+  }),
+  { virtual: true }
 );
 
 jest.mock(
-    "react-hot-toast",
-    () => ({
-        __esModule: true,
-        default: {
-            success: jest.fn(),
-        },
-    }),
-    { virtual: true }
+  "react-hot-toast",
+  () => ({
+    __esModule: true,
+    default: {
+      success: jest.fn(),
+    },
+  }),
+  { virtual: true }
 );
 
-import Header from "../../client/src/components/Header";
-import { renderWithProviders } from "../helpers/renderWithProviders";
-import { setupMockLocalStorage } from "../helpers/mockLocalStorage";
-import { mockCategoryApi } from "../helpers/mockCategoryApi";
+import Header from "client/src/components/Header";
+import { renderWithProviders } from "../../helpers/renderWithProviders";
+import { setupMockLocalStorage } from "../../helpers/mockLocalStorage";
+import { mockCategoryApi } from "../../helpers/mockCategoryApi";
 import toast from "react-hot-toast";
 
 describe("Header + AuthProvider + CartProvider + useCategory Integration", () => {

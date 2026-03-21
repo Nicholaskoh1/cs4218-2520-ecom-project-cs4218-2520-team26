@@ -2,17 +2,32 @@
 // Integration tests for CartPage with AuthProvider and CartProvider
 
 import React from "react";
-import { MemoryRouter } from "react-router-dom";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-import { AuthProvider } from "../context/auth";
-import { CartProvider, useCart } from "../context/cart";
-import CartPage from "./CartPage";
+import { useCart } from "client/src/context/cart";
+import CartPage from "client/src/pages/CartPage";
+import { renderWithProviders } from "../../helpers/renderWithProviders";
+import { setupMockLocalStorage } from "../../helpers/mockLocalStorage";
 
-jest.mock("axios");
+jest.mock(
+  "axios",
+  () => ({
+    __esModule: true,
+    default: {
+      get: jest.fn(),
+      post: jest.fn(),
+      defaults: {
+        headers: {
+          common: {},
+        },
+      },
+    },
+  }),
+  { virtual: true }
+);
 jest.mock("react-hot-toast");
 
 const mockNavigate = jest.fn();
@@ -35,54 +50,15 @@ jest.mock("braintree-web-drop-in-react", () => {
   };
 });
 
-jest.mock("../components/Layout", () => ({
+jest.mock("client/src/components/Layout", () => ({
   __esModule: true,
   default: ({ children }) => <div>{children}</div>,
 }));
-
-const setupLocalStorage = () => {
-  let store = {};
-  Object.defineProperty(window, "localStorage", {
-    value: {
-      getItem: jest.fn((key) => (key in store ? store[key] : null)),
-      setItem: jest.fn((key, value) => {
-        store[key] = String(value);
-      }),
-      removeItem: jest.fn((key) => {
-        delete store[key];
-      }),
-      clear: jest.fn(() => {
-        store = {};
-      }),
-    },
-    writable: true,
-  });
-};
-
-const setAuthData = (auth) => {
-  window.localStorage.setItem("auth", JSON.stringify(auth));
-};
-
-const setCartData = (items) => {
-  window.localStorage.setItem("cart", JSON.stringify(items));
-};
 
 const CartStateConsumer = () => {
   const [cart] = useCart();
   return <div data-testid="cart-size">{cart.length}</div>;
 };
-
-const renderWithProviders = () =>
-  render(
-    <MemoryRouter>
-      <AuthProvider>
-        <CartProvider>
-          <CartStateConsumer />
-          <CartPage />
-        </CartProvider>
-      </AuthProvider>
-    </MemoryRouter>
-  );
 
 const defaultCart = [
   {
@@ -104,10 +80,21 @@ const loggedInAuth = {
   token: "test-token",
 };
 
+const renderCartPage = () =>
+  renderWithProviders(
+    <>
+      <CartStateConsumer />
+      <CartPage />
+    </>
+  );
+
 describe("CartPage integration with real AuthProvider and CartProvider", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    setupLocalStorage();
+    setupMockLocalStorage({
+      auth: loggedInAuth,
+      cart: defaultCart,
+    });
     axios.defaults = { headers: { common: {} } };
 
     mockDropInInstance.requestPaymentMethod.mockReset();
@@ -122,12 +109,8 @@ describe("CartPage integration with real AuthProvider and CartProvider", () => {
   });
 
   it("displays cart items from context with name, description, price, and image", async () => {
-    // Arrange
-    setAuthData(loggedInAuth);
-    setCartData(defaultCart);
-
     // Act
-    renderWithProviders();
+    renderCartPage();
 
     // Assert
     await waitFor(() =>
@@ -135,8 +118,12 @@ describe("CartPage integration with real AuthProvider and CartProvider", () => {
     );
     expect(screen.getByText("Product 2")).toBeInTheDocument();
 
-    expect(screen.getByText("First product description")).toBeInTheDocument();
-    expect(screen.getByText("Second product description")).toBeInTheDocument();
+    expect(
+      screen.getByText("First product description")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Second product description")
+    ).toBeInTheDocument();
 
     expect(screen.getByText("Price : 10")).toBeInTheDocument();
     expect(screen.getByText("Price : 20")).toBeInTheDocument();
@@ -157,17 +144,16 @@ describe("CartPage integration with real AuthProvider and CartProvider", () => {
 
   it("removing a cart item updates both context and localStorage", async () => {
     // Arrange
-    setAuthData(loggedInAuth);
-    setCartData(defaultCart);
-
-    renderWithProviders();
+    renderCartPage();
 
     await waitFor(() =>
       expect(screen.getByText("Product 1")).toBeInTheDocument()
     );
     expect(screen.getByTestId("cart-size").textContent).toBe("2");
 
-    const removeButtons = screen.getAllByRole("button", { name: /remove/i });
+    const removeButtons = screen.getAllByRole("button", {
+      name: /remove/i,
+    });
 
     // Act
     await userEvent.click(removeButtons[0]);
@@ -184,12 +170,8 @@ describe("CartPage integration with real AuthProvider and CartProvider", () => {
   });
 
   it("calculates total price correctly from cart items", async () => {
-    // Arrange
-    setAuthData(loggedInAuth);
-    setCartData(defaultCart);
-
     // Act
-    renderWithProviders();
+    renderCartPage();
 
     // Assert
     await waitFor(() =>
@@ -199,10 +181,7 @@ describe("CartPage integration with real AuthProvider and CartProvider", () => {
 
   it('shows Braintree drop-in and triggers payment flow for authenticated users with items', async () => {
     // Arrange
-    setAuthData(loggedInAuth);
-    setCartData(defaultCart);
-
-    renderWithProviders();
+    renderCartPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("dropin")).toBeInTheDocument();
@@ -231,10 +210,7 @@ describe("CartPage integration with real AuthProvider and CartProvider", () => {
 
   it("clears cart and navigates to orders after successful payment", async () => {
     // Arrange
-    setAuthData(loggedInAuth);
-    setCartData(defaultCart);
-
-    renderWithProviders();
+    renderCartPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("dropin")).toBeInTheDocument();
@@ -261,11 +237,12 @@ describe("CartPage integration with real AuthProvider and CartProvider", () => {
 
   it('shows "please login to checkout" message for guest users', async () => {
     // Arrange
-    const guestAuth = { user: null, token: "" };
-    setAuthData(guestAuth);
-    setCartData(defaultCart);
+    setupMockLocalStorage({
+      auth: { user: null, token: "" },
+      cart: defaultCart,
+    });
 
-    renderWithProviders();
+    renderCartPage();
 
     // Assert
     await waitFor(() =>

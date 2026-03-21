@@ -7,11 +7,10 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import {
   braintreeTokenController,
   brainTreePaymentController,
-} from "./productController.js";
-import orderModel from "../models/orderModel.js";
+} from "../../../controllers/productController.js";
+import orderModel from "../../../models/orderModel.js";
 
-// Mock only  Braintree gateway at the boundary
-
+// Mock only Braintree gateway at the boundary
 jest.mock("braintree", () => {
   const clientTokenGenerateMock = jest.fn();
   const transactionSaleMock = jest.fn();
@@ -29,12 +28,11 @@ jest.mock("braintree", () => {
 
   return {
     BraintreeGateway,
-    Environment: { Sandbox: "Sandbox" }, // <-- add this
+    Environment: { Sandbox: "Sandbox" },
     __clientTokenGenerateMock: clientTokenGenerateMock,
     __transactionSaleMock: transactionSaleMock,
   };
 });
-
 
 import {
   __clientTokenGenerateMock as clientTokenGenerateMock,
@@ -51,7 +49,6 @@ const waitForOrderCount = async (expectedCount, tries = 5, delayMs = 20) => {
   }
   throw new Error(`Expected ${expectedCount} orders, but not created in time`);
 };
-
 
 const createMockResponse = () => {
   const res = {};
@@ -93,7 +90,6 @@ beforeEach(async () => {
   jest.clearAllMocks();
 });
 
-// Earnest Suprapmo, A0251966U
 describe("braintreeTokenController integration", () => {
   it("returns a client token from the gateway", async () => {
     // Arrange
@@ -108,11 +104,12 @@ describe("braintreeTokenController integration", () => {
 
     // Assert
     expect(clientTokenGenerateMock).toHaveBeenCalled();
-    expect(res.send).toHaveBeenCalledWith({ clientToken: "fake-client-token" });
+    expect(res.send).toHaveBeenCalledWith({
+      clientToken: "fake-client-token",
+    });
   });
 });
 
-// Earnest Suprapmo, A0251966U
 describe("brainTreePaymentController integration", () => {
   it("creates a transaction and saves an order on success", async () => {
     // Arrange

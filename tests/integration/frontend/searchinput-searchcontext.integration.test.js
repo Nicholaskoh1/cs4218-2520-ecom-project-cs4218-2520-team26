@@ -20,8 +20,8 @@ jest.mock(
 );
 
 import axios from "axios";
-import SearchInput from "../../client/src/components/Form/SearchInput";
-import { SearchProvider, useSearch } from "../../client/src/context/search";
+import SearchInput from "client/src/components/Form/SearchInput";
+import { SearchProvider, useSearch } from "client/src/context/search";
 
 const SearchStateProbe = () => {
     const [values] = useSearch();
