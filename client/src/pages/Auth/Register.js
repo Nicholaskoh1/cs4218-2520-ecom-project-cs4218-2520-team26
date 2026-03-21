@@ -14,6 +14,16 @@ const Register = () => {
   const [answer, setAnswer] = useState("");
   const navigate = useNavigate();
 
+  const getErrorMessage = (error) => {
+    if (!error.response) {
+      if (error.code === "ECONNABORTED") {
+        return "Request timeout. Please try again.";
+      }
+      return "Network error. Please check your connection.";
+    }
+    return "Something went wrong";
+  };
+
   // form function
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +45,8 @@ const Register = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something went wrong");
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
     }
   };
 

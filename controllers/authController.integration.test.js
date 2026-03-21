@@ -37,7 +37,8 @@ const getRegisterBody = (overrides = {}) => ({
   ...overrides,
 });
 
-describe("authController integration tests", () => {
+// Nicholas Koh Zi Lun, A0272806B
+describe("Integration tests for Login page, covering register, login and forgot password", () => {
   let mongoServer;
 
   beforeAll(async () => {

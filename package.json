@@ -11,6 +11,7 @@
     "sonarqube": "sonarqube-scanner",
     "test": "npm run test:backend && npm run test:frontend",
     "test:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js",
+    "test:frontend:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js --testMatch=\"<rootDir>/client/src/**/*.integration.test.js\"",
     "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js",
     "test:backend:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js --testMatch=\"<rootDir>/controllers/*.integration.test.js\""
   },
@@ -40,6 +41,7 @@
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-react": "^7.24.1",
     "@playwright/test": "^1.44.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20.12.12",
     "babel-jest": "^29.7.0",
     "identity-obj-proxy": "^3.0.0",
