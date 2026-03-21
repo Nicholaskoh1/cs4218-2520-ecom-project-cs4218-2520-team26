@@ -38,7 +38,7 @@ const getRegisterBody = (overrides = {}) => ({
 });
 
 // Nicholas Koh Zi Lun, A0272806B
-describe("Integration tests for Login page, covering register, login and forgot password", () => {
+describe("Integration tests for registerController, loginController, and forgotPasswordController, with real database", () => {
   let mongoServer;
 
   beforeAll(async () => {
@@ -59,11 +59,14 @@ describe("Integration tests for Login page, covering register, login and forgot 
   });
 
   it("registering a new user hashes the password and persists the user", async () => {
+    // Arrange
     const req = { body: getRegisterBody() };
     const res = createMockRes();
 
+    // Act
     await registerController(req, res);
 
+    // Assert
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.body.success).toBe(true);
 
@@ -76,6 +79,7 @@ describe("Integration tests for Login page, covering register, login and forgot 
   });
 
   it("attempting to register with an existing email returns an error", async () => {
+    // Arrange
     const existingPassword = await hashPassword("ExistingPassword123");
     await userModel.create({
       name: "Existing User",
@@ -93,8 +97,10 @@ describe("Integration tests for Login page, covering register, login and forgot 
     };
     const res = createMockRes();
 
+    // Act
     await registerController(req, res);
 
+    // Assert
     expect(res.status).toHaveBeenCalledWith(409);
     expect(res.body).toMatchObject({
       success: false,
@@ -103,6 +109,7 @@ describe("Integration tests for Login page, covering register, login and forgot 
   });
 
   it("logging in with correct credentials returns a JWT token and user data", async () => {
+    // Arrange
     const plainPassword = "CorrectPassword123";
     const stored = await userModel.create({
       name: "Login User",
@@ -122,8 +129,10 @@ describe("Integration tests for Login page, covering register, login and forgot 
     };
     const res = createMockRes();
 
+    // Act
     await loginController(req, res);
 
+    // Assert
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.body.success).toBe(true);
     expect(res.body.token).toBeDefined();
@@ -140,6 +149,7 @@ describe("Integration tests for Login page, covering register, login and forgot 
   });
 
   it("logging in with incorrect password returns an error", async () => {
+    // Arrange
     await userModel.create({
       name: "Wrong Password User",
       email: "wrongpass@example.com",
@@ -157,8 +167,10 @@ describe("Integration tests for Login page, covering register, login and forgot 
     };
     const res = createMockRes();
 
+    // Act
     await loginController(req, res);
 
+    // Assert
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.body).toMatchObject({
       success: false,
@@ -167,6 +179,7 @@ describe("Integration tests for Login page, covering register, login and forgot 
   });
 
   it("logging in with a non-existent email returns an error", async () => {
+    // Arrange
     const req = {
       body: {
         email: "missing@example.com",
@@ -175,8 +188,10 @@ describe("Integration tests for Login page, covering register, login and forgot 
     };
     const res = createMockRes();
 
+    // Act
     await loginController(req, res);
 
+    // Assert
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.body).toMatchObject({
       success: false,
@@ -185,6 +200,7 @@ describe("Integration tests for Login page, covering register, login and forgot 
   });
 
   it("forgotPasswordController resets password with correct answer and stores hashed value", async () => {
+    // Arrange
     const originalPassword = "OldPassword123";
     const newPassword = "NewPassword123";
 
@@ -206,8 +222,10 @@ describe("Integration tests for Login page, covering register, login and forgot 
     };
     const res = createMockRes();
 
+    // Act
     await forgotPasswordController(req, res);
 
+    // Assert
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.body).toMatchObject({
       success: true,
