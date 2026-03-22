@@ -63,7 +63,7 @@ describe("Profile Component", () => {
     });
 
     describe("Form Rendering", () => {
-        // Ashley Chang Le Xuan, A0252633J
+        // Ashley Chang Le Xuan, A0252633J (MS2)
         it("should render empty fields when auth context is missing user data", () => {
             // Arrange
             useAuth.mockReturnValue([null, jest.fn()]);
@@ -245,7 +245,7 @@ describe("Profile Component", () => {
             console.log.mockRestore();
         });
 
-        // Ashley Chang Le Xuan, A0252633J
+        // Ashley Chang Le Xuan, A0252633J (MS2)
         it("should display backend error message when API rejects with response error", async () => {
             // Arrange
             axios.put.mockRejectedValueOnce({
