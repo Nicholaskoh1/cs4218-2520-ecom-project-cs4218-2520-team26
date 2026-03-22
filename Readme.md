@@ -17,6 +17,16 @@
 - Unit-testing
   - Profile.test.js (added 2 test cases)
 
+**Khoo Jing Xiang, A0252605L**
+- Integration (Client)
+  - header-providers.integration.test.js
+  - layout-header-footer.integration.test.js
+  - searchinput-searchcontext.integration.test.js
+-End-to-End
+  - static-pages.spec.js
+  - search.spec.js
+
+
 
 ## MS1
 
