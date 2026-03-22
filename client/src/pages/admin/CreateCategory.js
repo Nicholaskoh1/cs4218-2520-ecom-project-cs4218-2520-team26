@@ -19,14 +19,17 @@ const CreateCategory = () => {
         name,
       });
       if (data?.success) {
-        toast.success(`${name} is created`);
+        toast.success(data.message || `${name} is created`);
+        setName("");
         getAllCategory();
       } else {
         toast.error(data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something went wrong in input form");
+      toast.error(
+        error?.response?.data?.message || "Something went wrong in input form",
+      );
     }
   };
 
@@ -39,7 +42,7 @@ const CreateCategory = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something went wrong in getting catgeory");
+      toast.error("Something went wrong in getting category");
     }
   };
 
@@ -51,9 +54,14 @@ const CreateCategory = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
+      if (!selected?._id) {
+        toast.error("Category not found");
+        return;
+      }
+
       const { data } = await axios.put(
         `/api/v1/category/update-category/${selected._id}`,
-        { name: updatedName }
+        { name: updatedName },
       );
       if (data.success) {
         toast.success(`${updatedName} is updated`);
@@ -65,24 +73,24 @@ const CreateCategory = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
   //delete category
   const handleDelete = async (pId) => {
     try {
       const { data } = await axios.delete(
-        `/api/v1/category/delete-category/${pId}`
+        `/api/v1/category/delete-category/${pId}`,
       );
       if (data.success) {
-        toast.success(`category is deleted`);
+        toast.success(data.message || `category is deleted`);
 
         getAllCategory();
       } else {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
   return (
@@ -111,9 +119,9 @@ const CreateCategory = () => {
                 </thead>
                 <tbody>
                   {categories?.map((c) => (
-                    <>
+                    <React.Fragment key={c._id}>
                       <tr>
-                        <td key={c._id}>{c.name}</td>
+                        <td>{c.name}</td>
                         <td>
                           <button
                             className="btn btn-primary ms-2"
@@ -135,7 +143,7 @@ const CreateCategory = () => {
                           </button>
                         </td>
                       </tr>
-                    </>
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>
