@@ -20,8 +20,10 @@ export default {
     "controllers/**",
     "models/**", 
     "helpers/**", 
-    "middlewares/**"
-],
+    "middlewares/**",
+    "config/**",
+  ],
+  coverageDirectory: "coverage/backend",
   coverageThreshold: {
     global: {
       lines: 95,

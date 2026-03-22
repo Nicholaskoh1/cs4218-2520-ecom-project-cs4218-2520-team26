@@ -40,6 +40,7 @@ export default {
     "client/src/pages/**",
     "client/src/hooks/**",
   ],
+  coverageDirectory: "coverage/frontend",
   coverageThreshold: {
     global: {
       lines: 95,
