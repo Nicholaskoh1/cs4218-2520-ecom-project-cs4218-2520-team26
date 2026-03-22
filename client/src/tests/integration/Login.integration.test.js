@@ -4,7 +4,7 @@ import axios from "axios";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom";
 import toast from "react-hot-toast";
-import Login from "./Login";
+import Login from "../../pages/Auth/Login";
 import { AuthProvider, useAuth } from "../../context/auth";
 
 // Mocks

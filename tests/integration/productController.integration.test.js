@@ -4,11 +4,12 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import fs from "fs";
 import path from "path";
+import os from "os";
 
 import {
   braintreeTokenController,
   brainTreePaymentController,
-  createProductController
+  createProductController,
 } from "../../controllers/productController.js";
 import orderModel from "../../models/orderModel.js";
 import productModel from "../../models/productModel.js";
@@ -134,7 +135,7 @@ describe("createProductController integration with productModel", () => {
       expect.objectContaining({
         success: true,
         message: "Product Created Successfully",
-      })
+      }),
     );
     const savedProduct = await productModel.findOne({ name: "Test Product" });
     expect(savedProduct).not.toBeNull();
@@ -173,7 +174,7 @@ describe("createProductController integration with productModel", () => {
 
   it("saves photo data and content type when photo is under 1MB", async () => {
     // Arrange
-    const fakePhotoPath = path.join("/tmp", "test-photo.jpg");
+    const fakePhotoPath = path.join(os.tmpdir(), "test-photo.jpg");
     const fakePhotoData = Buffer.alloc(500 * 1024);
     fs.writeFileSync(fakePhotoPath, fakePhotoData);
 
@@ -219,7 +220,7 @@ describe("createProductController integration with productModel", () => {
       },
       files: {
         photo: {
-          path: "/tmp/bigphoto.jpg",
+          path: path.join(os.tmpdir(), "bigphoto.jpg"),
           type: "image/jpeg",
           size: 2 * 1024 * 1024,
         },
@@ -235,7 +236,7 @@ describe("createProductController integration with productModel", () => {
     expect(res.send).toHaveBeenCalledWith(
       expect.objectContaining({
         error: "Photo is required and should be less than 1 MB",
-      })
+      }),
     );
     const count = await productModel.countDocuments();
     expect(count).toBe(0);
@@ -260,7 +261,7 @@ describe("createProductController integration with productModel", () => {
     // Assert
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.send).toHaveBeenCalledWith(
-      expect.objectContaining({ error: "Name is Required" })
+      expect.objectContaining({ error: "Name is Required" }),
     );
     const count = await productModel.countDocuments();
     expect(count).toBe(0);
@@ -285,7 +286,7 @@ describe("createProductController integration with productModel", () => {
     // Assert
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.send).toHaveBeenCalledWith(
-      expect.objectContaining({ error: "Description is Required" })
+      expect.objectContaining({ error: "Description is Required" }),
     );
     const count = await productModel.countDocuments();
     expect(count).toBe(0);
@@ -310,7 +311,7 @@ describe("createProductController integration with productModel", () => {
     // Assert
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.send).toHaveBeenCalledWith(
-      expect.objectContaining({ error: "Price is Required" })
+      expect.objectContaining({ error: "Price is Required" }),
     );
     const count = await productModel.countDocuments();
     expect(count).toBe(0);
@@ -335,7 +336,7 @@ describe("createProductController integration with productModel", () => {
     // Assert
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.send).toHaveBeenCalledWith(
-      expect.objectContaining({ error: "Category is Required" })
+      expect.objectContaining({ error: "Category is Required" }),
     );
     const count = await productModel.countDocuments();
     expect(count).toBe(0);
@@ -360,12 +361,11 @@ describe("createProductController integration with productModel", () => {
     // Assert
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.send).toHaveBeenCalledWith(
-      expect.objectContaining({ error: "Quantity is Required" })
+      expect.objectContaining({ error: "Quantity is Required" }),
     );
     const count = await productModel.countDocuments();
     expect(count).toBe(0);
   });
-
 });
 
 // Earnest Suprapmo, A0251966U

@@ -47,10 +47,11 @@ const AdminOrders = () => {
       );
 
       toast.success("Order status updated successfully");
+      getOrders();
     } catch (error) {
       console.log(error);
       toast.error(
-        error?.response?.data?.message || "Unable to update order status",
+        error?.response?.data?.error || "Unable to update order status",
       );
     }
   };

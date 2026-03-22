@@ -4,7 +4,7 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom";
 import axios from "axios";
 
-import AdminDashboard from "./AdminDashboard";
+import AdminDashboard from "../../pages/admin/AdminDashboard";
 import { AuthProvider } from "../../context/auth";
 import { CartProvider } from "../../context/cart";
 import { SearchProvider } from "../../context/search";

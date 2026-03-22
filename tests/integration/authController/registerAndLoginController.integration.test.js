@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 import JWT from "jsonwebtoken";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
-import userModel from "../models/userModel.js";
+import userModel from "../../../models/userModel.js";
 import {
   registerController,
   loginController,
   forgotPasswordController,
-} from "./authController.js";
-import { hashPassword, comparePassword } from "../helpers/authHelper.js";
+} from "../../../controllers/authController.js";
+import { hashPassword, comparePassword } from "../../../helpers/authHelper.js";
 
 jest.setTimeout(30000);
 

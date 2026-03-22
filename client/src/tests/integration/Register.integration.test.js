@@ -5,7 +5,7 @@ import axios from "axios";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom";
 import toast from "react-hot-toast";
-import Register from "./Register";
+import Register from "../../pages/Auth/Register";
 
 // Mocks
 jest.mock("axios");
