@@ -18,6 +18,21 @@
   - Profile.test.js (added 2 test cases)
 
 
+**Nicholas Koh Zi Lun, A0272806B**
+- Integration (Client)
+  - Login.integration.test.js
+  - Register.integration.test.js
+  - AdminDashboard.integration.test.js
+- Integration (Server)
+  - authController
+    - registerAndLoginController.integration.test.js
+- End-to-End
+  - auth-flow.spec.ts
+  - admin-management.spec.ts
+- Unit-testing
+  - ForgotPassword.test.js
+
+
 ## MS1
 
 ### MS1 CI URL
