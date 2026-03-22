@@ -208,7 +208,9 @@ describe("Register Component", () => {
 
     // Assert
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
-    expect(toast.error).toHaveBeenCalledWith("Something went wrong");
+    expect(toast.error).toHaveBeenCalledWith(
+      "Unable to register right now. Please try again later.",
+    );
     console.log.mockRestore();
   });
 });

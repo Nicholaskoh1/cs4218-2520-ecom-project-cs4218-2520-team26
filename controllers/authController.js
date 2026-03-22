@@ -7,19 +7,46 @@ import JWT from "jsonwebtoken";
 export const registerController = async (req, res) => {
   try {
     const { name, email, password, phone, address, answer } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+    const validEmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const validPhonePattern = /^\+?[0-9]{8,15}$/;
 
     // Validations
     if (!name) {
       return res.status(400).send({ success: false, message: "Name is Required" });
     }
     if (!email) {
-      return res.status(400).send({ success: false, message: "Email is Required" });
+      return res
+        .status(400)
+        .send({ success: false, message: "Email is Required" });
+    }
+    if (!validEmailPattern.test(normalizedEmail)) {
+      return res.status(400).send({
+        success: false,
+        message: "Please enter a valid email address",
+      });
     }
     if (!password) {
-      return res.status(400).send({ success: false, message: "Password is Required" });
+      return res
+        .status(400)
+        .send({ success: false, message: "Password is Required" });
+    }
+    if (password.length < 6) {
+      return res.status(400).send({
+        success: false,
+        message: "Password must be at least 6 characters long",
+      });
     }
     if (!phone) {
-      return res.status(400).send({ success: false, message: "Phone no is Required" });
+      return res
+        .status(400)
+        .send({ success: false, message: "Phone no is Required" });
+    }
+    if (!validPhonePattern.test(phone.trim())) {
+      return res.status(400).send({
+        success: false,
+        message: "Please enter a valid phone number",
+      });
     }
     if (!address) {
       return res.status(400).send({ success: false, message: "Address is Required" });
@@ -29,11 +56,11 @@ export const registerController = async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = await userModel.findOne({ email });
+    const existingUser = await userModel.findOne({ email: normalizedEmail });
     if (existingUser) {
       return res.status(409).send({
         success: false,
-        message: "Already Registered. Please login",
+        message: "This email has already been registered",
       });
     }
 
@@ -41,7 +68,7 @@ export const registerController = async (req, res) => {
     const hashedPassword = await hashPassword(password);
     const user = await new userModel({
       name,
-      email,
+      email: normalizedEmail,
       phone,
       address,
       password: hashedPassword,
@@ -64,33 +91,47 @@ export const registerController = async (req, res) => {
 export const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+    const validEmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     // Validation
-    if (!email || !password) {
-      return res.status(401).send({
+    if (!email) {
+      return res.status(400).send({
         success: false,
-        message: "Invalid email or password",
+        message: "Email is required",
+      });
+    }
+    if (!validEmailPattern.test(normalizedEmail)) {
+      return res.status(400).send({
+        success: false,
+        message: "Please enter a valid email address",
+      });
+    }
+    if (!password) {
+      return res.status(400).send({
+        success: false,
+        message: "Password is required",
       });
     }
     // Check if user exists
-    const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email: normalizedEmail });
     if (!user) {
-      return res.status(404).send({
+      return res.status(401).send({
         success: false,
-        message: "Email is not registered",
+        message: "No account found with this email",
       });
     }
     const match = await comparePassword(password, user.password);
     if (!match) {
       return res.status(401).send({
         success: false,
-        message: "Invalid Password",
+        message: "Incorrect password",
       });
     }
 
     // Create JWT token
     const token = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "7d",
+      expiresIn: "7d",
     });
 
     return res.status(200).send({
@@ -129,7 +170,7 @@ export const forgotPasswordController = async (req, res) => {
     if (!newPassword) {
       return res.status(400).send({ success: false, message: "New password is required" });
     }
-    
+
     // Check if user exists
     const user = await userModel.findOne({ email, answer });
     if (!user) {
@@ -156,10 +197,10 @@ export const forgotPasswordController = async (req, res) => {
 };
 
 export const testController = (req, res) => {
-    return res.status(200).send({
-        success: true,
-        message: "Protected Routes",
-    }); 
+  return res.status(200).send({
+    success: true,
+    message: "Protected Routes",
+  });
 };
 
 //update profile

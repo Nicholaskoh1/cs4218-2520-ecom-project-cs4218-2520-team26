@@ -10,11 +10,23 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [auth, setAuth] = useAuth();
-  
+
 
   const navigate = useNavigate();
   const location = useLocation();
-  
+
+  const getErrorMessage = (error) => {
+    if (error?.response?.data?.message) {
+      return error.response.data.message;
+    }
+    if (error?.code === "ECONNABORTED") {
+      return "Request timeout. Please try again.";
+    }
+    if (!error?.response) {
+      return "Network error. Please check your connection.";
+    }
+    return "Unable to login right now. Please try again.";
+  };
 
   // form function
   const handleSubmit = async (e) => {
@@ -26,17 +38,17 @@ const Login = () => {
       });
       if (res && res.data.success) {
         toast.success(res.data && res.data.message, {
-            duration: 5000,
-            icon: "🙏",
-            style: {
-              background: "green",
-              color: "white",
-            },
-          });
+          duration: 5000,
+          icon: "🙏",
+          style: {
+            background: "green",
+            color: "white",
+          },
+        });
         setAuth({
-            ...auth,
-            user: res.data.user,
-            token: res.data.token,
+          ...auth,
+          user: res.data.user,
+          token: res.data.token,
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
         navigate(location.state || "/");
@@ -45,7 +57,7 @@ const Login = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something went wrong");
+      toast.error(getErrorMessage(error));
     }
   };
   return (

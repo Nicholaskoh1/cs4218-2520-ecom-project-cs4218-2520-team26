@@ -433,7 +433,9 @@ describe("Login Page - Integration Tests with Real AuthProvider and Navigation",
 
       // Assert
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith("Something went wrong");
+        expect(toast.error).toHaveBeenCalledWith(
+          "Network error. Please check your connection.",
+        );
       });
 
       console.log.mockRestore();

@@ -104,7 +104,7 @@ describe("Integration tests for registerController, loginController, and forgotP
     expect(res.status).toHaveBeenCalledWith(409);
     expect(res.body).toMatchObject({
       success: false,
-      message: "Already Registered. Please login",
+      message: "This email has already been registered",
     });
   });
 
@@ -174,7 +174,7 @@ describe("Integration tests for registerController, loginController, and forgotP
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.body).toMatchObject({
       success: false,
-      message: "Invalid Password",
+      message: "Incorrect password",
     });
   });
 
@@ -192,10 +192,10 @@ describe("Integration tests for registerController, loginController, and forgotP
     await loginController(req, res);
 
     // Assert
-    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.status).toHaveBeenCalledWith(401);
     expect(res.body).toMatchObject({
       success: false,
-      message: "Email is not registered",
+      message: "No account found with this email",
     });
   });
 

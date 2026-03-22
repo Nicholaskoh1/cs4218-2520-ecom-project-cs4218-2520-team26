@@ -15,13 +15,16 @@ const Register = () => {
   const navigate = useNavigate();
 
   const getErrorMessage = (error) => {
+    if (error?.response?.data?.message) {
+      return error.response.data.message;
+    }
     if (!error.response) {
       if (error.code === "ECONNABORTED") {
         return "Request timeout. Please try again.";
       }
       return "Network error. Please check your connection.";
     }
-    return "Something went wrong";
+    return "Unable to register right now. Please try again later.";
   };
 
   // form function
