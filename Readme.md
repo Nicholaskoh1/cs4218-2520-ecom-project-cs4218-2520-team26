@@ -36,6 +36,16 @@
     - tests/non-functional/load/forget.csv
     - tests/non-functional/load/users.csv
 
+**Ashley Chang Le Xuan, A0252633J**
+- Performance (Stress)
+  - Checkout flow stress test
+    - tests\non-functional\stress\checkout_stress_compact_boundary.jmx
+    - tests\non-functional\stress\results\screenshots\1-90 (discovery)
+    - tests\non-functional\stress\results\screenshots\90-150 (quick check)
+    - tests\non-functional\stress\results\screenshots\1-160 (compact boundary)
+  - Helper files
+    - tests\non-functional\stress\analyze_results_compact_boundary.py
+
 ## MS2
 
 ### Individual Contributions
