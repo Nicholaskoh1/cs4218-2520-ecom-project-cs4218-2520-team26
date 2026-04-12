@@ -11,6 +11,8 @@ import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import cors from "cors";
+import mongoose from "mongoose";
+import { createDbFailureRouter } from "./tests/non-functional/recovery/inject-db-failure.js";
 
 // configure env
 dotenv.config();
@@ -48,6 +50,56 @@ if (cluster.isPrimary) {
     },
   });
 
+//middlewares
+  app.use(cors());
+  app.use(express.json());
+  app.use(compression({
+    threshold: 1024,
+    filter: (req, res) => {
+      if (req.path.startsWith("/api/v1/product/product-photo/")) return false;
+      return compression.filter(req, res);
+    },
+  }));
+  if (process.env.ENABLE_HTTP_LOGS === "true") {
+    app.use(morgan("dev"));
+  }
+
+  app.post("/api/v1/auth/login", loginRateLimit);
+
+  // ── Fault injection (recovery testing only) ──────────────────────────────
+  if (process.env.ENABLE_FAULT_INJECTION === "true") {
+    app.use("/_test", createDbFailureRouter());
+    console.warn("[FAULT INJECTION] /_test routes are ACTIVE – not for production".bgRed.white);
+  }
+
+  //routes
+  app.use("/api/v1/auth", authRoutes);
+  app.use("/api/v1/category", categoryRoutes);
+  app.use("/api/v1/product", productRoutes);
+
+  // ── Health check ─────────────────────────────────────────────────────────
+  app.get("/healthz", (req, res) => {
+    const readyState = mongoose.connection.readyState;
+    if (readyState === 1) {
+      return res.status(200).json({
+        status: "ok",
+        db: "connected",
+        readyState,
+        timestamp: new Date().toISOString(),
+      });
+    }
+    return res.status(503).json({
+      status: "degraded",
+      db: "disconnected",
+      readyState,
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  app.get("/", (_req, res) => {
+    res.send("<h1>Welcome to ecommerce app</h1>");
+  });
+  
   //middlewares
   app.use(cors());
   app.use(express.json());
