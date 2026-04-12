@@ -13,7 +13,18 @@ export const requireSignIn = async (req, res, next) => {
             });
         }
 
-        const decode = JWT.verify(authHeader, process.env.JWT_SECRET);
+        const token = authHeader.startsWith("Bearer ")
+            ? authHeader.slice(7).trim()
+            : authHeader.trim();
+
+        if (!token) {
+            return res.status(401).send({
+                success: false,
+                message: "Authorization token is required",
+            });
+        }
+
+        const decode = JWT.verify(token, process.env.JWT_SECRET);
         req.user = decode;
         next();
     } catch (error) {

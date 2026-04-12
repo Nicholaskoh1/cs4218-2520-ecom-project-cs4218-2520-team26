@@ -7,6 +7,7 @@ import {
     createCategoryController,
     updateCategoryController,
     deleteCategoryController,
+    __clearCategoryListCacheForTests,
 } from "../controllers/categoryController.js";
 
  
@@ -53,6 +54,7 @@ const createMockResponse = () => {
 describe("categoryController", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    __clearCategoryListCacheForTests();
   });
 
   it("returns all categories on success", async () => {
@@ -61,7 +63,9 @@ describe("categoryController", () => {
       { _id: "1", name: "Cat 1" },
       { _id: "2", name: "Cat 2" },
     ];
-    categoryModel.find.mockResolvedValueOnce(categories);
+    categoryModel.find.mockReturnValueOnce({
+      lean: jest.fn().mockResolvedValueOnce(categories),
+    });
     const req = {};
     const res = createMockResponse();
 
@@ -81,7 +85,9 @@ describe("categoryController", () => {
   it("logs an error and returns 500 when fetching all categories fails", async () => {
     // Arrange
     const error = new Error("DB failure");
-    categoryModel.find.mockRejectedValueOnce(error);
+    categoryModel.find.mockReturnValueOnce({
+      lean: jest.fn().mockRejectedValueOnce(error),
+    });
     const req = {};
     const res = createMockResponse();
     const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
@@ -101,12 +107,33 @@ describe("categoryController", () => {
 
     consoleSpy.mockRestore();
   });
+
+  it("returns cached JSON on second call", async () => {
+    // Arrange
+    const categories = [{ _id: "1", name: "Cat 1" }];
+    categoryModel.find.mockReturnValueOnce({
+      lean: jest.fn().mockResolvedValueOnce(categories),
+    });
+    const req = {};
+
+    await categoryController(req, createMockResponse());
+
+    // Act
+    const res = createMockResponse();
+    res.type = jest.fn().mockReturnValue(res);
+    await categoryController(req, res);
+
+    // Assert
+    expect(categoryModel.find).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
 });
 
 // Earnest Suprapmo, A0251966U
 describe("singleCategoryController", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    __clearCategoryListCacheForTests();
   });
 
   it("returns a single category by slug on success", async () => {
@@ -160,6 +187,7 @@ describe("singleCategoryController", () => {
 describe("createCategoryController", () => {
   beforeEach(() => {
       jest.clearAllMocks();
+        __clearCategoryListCacheForTests();
   });
 
   it("should return 401 if name is missing", async () => {
@@ -231,6 +259,34 @@ describe("createCategoryController", () => {
 describe("updateCategoryController", () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        __clearCategoryListCacheForTests();
+    });
+
+    it("should return 400 when name is missing", async () => {
+        const req = { body: {}, params: { id: "1" } };
+        const res = mockResponse();
+        await updateCategoryController(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.send).toHaveBeenCalledWith({ success: false, message: "Name is required" });
+    });
+
+    it("should return 409 when slug already exists for another category", async () => {
+        const req = { body: { name: "Duplicate" }, params: { id: "99" } };
+        const res = mockResponse();
+        slugify.mockReturnValue("duplicate");
+        categoryModel.findOne.mockResolvedValue({ _id: "1", slug: "duplicate" });
+        await updateCategoryController(req, res);
+        expect(res.status).toHaveBeenCalledWith(409);
+    });
+
+    it("should return 404 when category to update is not found", async () => {
+        const req = { body: { name: "Ghost" }, params: { id: "99" } };
+        const res = mockResponse();
+        slugify.mockReturnValue("ghost");
+        categoryModel.findOne.mockResolvedValue(null);
+        categoryModel.findByIdAndUpdate.mockResolvedValue(null);
+        await updateCategoryController(req, res);
+        expect(res.status).toHaveBeenCalledWith(404);
     });
 
     it("should update category", async () => {
@@ -269,6 +325,16 @@ describe("updateCategoryController", () => {
 describe("deleteCategoryController", () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        __clearCategoryListCacheForTests();
+    });
+
+    it("should return 404 when category to delete is not found", async () => {
+        const req = { params: { id: "99" } };
+        const res = mockResponse();
+        categoryModel.findByIdAndDelete.mockResolvedValue(null);
+        await deleteCategoryController(req, res);
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith({ success: false, message: "Category not found" });
     });
 
     it("should delete category", async () => {
@@ -277,7 +343,7 @@ describe("deleteCategoryController", () => {
         const res = mockResponse();
 
         categoryModel.findByIdAndDelete.mockResolvedValue({ _id: "1" });
-        
+
         // Act
         await deleteCategoryController(req, res);
 

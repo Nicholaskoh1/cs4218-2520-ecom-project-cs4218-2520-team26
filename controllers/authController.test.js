@@ -33,9 +33,18 @@ const mockUser = {
 };
 const mockToken = "mocktoken";
 
+const makeLeanQuery = (result) => ({
+  lean: jest.fn().mockResolvedValue(result),
+});
+
+const makeSelectQuery = (result) => ({
+  select: jest.fn().mockReturnThis(),
+  lean: jest.fn().mockResolvedValue(result),
+});
+
 // Tests
 describe("authController - Profile and Orders", () => {
-    let req, res;
+  let req, res;
 
     beforeEach(() => {
         req = {
@@ -68,7 +77,7 @@ describe("authController - Profile and Orders", () => {
         it("should register a new user successfully", async () => {
             // Arrange
             req.body = { ...mockUser };
-            userModel.findOne.mockResolvedValue(null);
+            userModel.findOne.mockReturnValue(makeLeanQuery(null));
             hashPassword.mockResolvedValue("hashedpassword");
             userModel.prototype.save.mockResolvedValue({ ...mockUser, password: "hashedpassword" });
 
@@ -116,6 +125,21 @@ describe("authController - Profile and Orders", () => {
             });
         });
 
+        it("should return 400 when email format is invalid", async () => {
+            // Arrange
+            req.body = { ...mockUser, email: "notanemail" };
+
+            // Act
+            await registerController(req, res);
+
+            // Assert
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.send).toHaveBeenCalledWith({
+                success: false,
+                message: "Please enter a valid email address",
+            });
+        });
+
         it("should return 400 when password is missing", async () => {
             // Arrange
             req.body = { ...mockUser, password: undefined };
@@ -131,6 +155,21 @@ describe("authController - Profile and Orders", () => {
             });
         });
 
+        it("should return 400 when password is too short", async () => {
+            // Arrange
+            req.body = { ...mockUser, password: "abc" };
+
+            // Act
+            await registerController(req, res);
+
+            // Assert
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.send).toHaveBeenCalledWith({
+                success: false,
+                message: "Password must be at least 6 characters long",
+            });
+        });
+
         it("should return 400 when phone is missing", async () => {
             // Arrange
             req.body = { ...mockUser, phone: undefined };
@@ -143,6 +182,21 @@ describe("authController - Profile and Orders", () => {
             expect(res.send).toHaveBeenCalledWith({
                 success: false,
                 message: "Phone no is Required",
+            });
+        });
+
+        it("should return 400 when phone format is invalid", async () => {
+            // Arrange
+            req.body = { ...mockUser, phone: "abc" };
+
+            // Act
+            await registerController(req, res);
+
+            // Assert
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.send).toHaveBeenCalledWith({
+                success: false,
+                message: "Please enter a valid phone number",
             });
         });
 
@@ -179,7 +233,7 @@ describe("authController - Profile and Orders", () => {
         it("should return 409 when email already exists", async () => {
             // Arrange
             req.body = { ...mockUser };
-            userModel.findOne.mockResolvedValue({ ...mockUser });
+            userModel.findOne.mockReturnValue(makeLeanQuery({ ...mockUser }));
 
             // Act
             await registerController(req, res);
@@ -196,7 +250,8 @@ describe("authController - Profile and Orders", () => {
         it("should return 500 if an error occurs during registration", async () => {
             // Arrange
             req.body = { ...mockUser };
-            userModel.findOne.mockRejectedValue(new Error("Database error"));
+            userModel.findOne.mockReturnValue({ lean: jest.fn().mockRejectedValue(new Error("Database error")) });
+            const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
             // Act
             await registerController(req, res);
@@ -208,6 +263,7 @@ describe("authController - Profile and Orders", () => {
                 success: false,
                 message: "Error registering user",
             });
+            consoleSpy.mockRestore();
         });
     });
     
@@ -226,12 +282,14 @@ describe("authController - Profile and Orders", () => {
             jest.clearAllMocks();
         });
 
-        it("should login successfully with valid credentials", async () => {
-            // Arrange
-            req.body = { email: mockUser.email, password: mockUser.password };
-            userModel.findOne.mockResolvedValue({ ...mockUser, password: "hashedpassword" });
-            comparePassword.mockResolvedValue(true);
-            JWT.sign.mockReturnValue(mockToken);
+    it("should login successfully with valid credentials", async () => {
+      // Arrange
+      req.body = { email: mockUser.email, password: mockUser.password };
+      userModel.findOne.mockReturnValue(
+        makeSelectQuery({ ...mockUser, password: "hashedpassword" }),
+      );
+      comparePassword.mockResolvedValue(true);
+      JWT.sign.mockReturnValue(mockToken);
 
             // Act
             await loginController(req, res);
@@ -271,6 +329,21 @@ describe("authController - Profile and Orders", () => {
             });
         });
 
+        it("should return 400 when email format is invalid", async () => {
+            // Arrange
+            req.body = { email: "notanemail", password: mockUser.password };
+
+            // Act
+            await loginController(req, res);
+
+            // Assert
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.send).toHaveBeenCalledWith({
+                success: false,
+                message: "Please enter a valid email address",
+            });
+        });
+
         it("should return 401 when password is missing", async () => {
             // Arrange
             req.body = { email: mockUser.email };
@@ -286,10 +359,10 @@ describe("authController - Profile and Orders", () => {
             });
         });
 
-        it("should return 404 when email is not registered", async () => {
-            // Arrange
-            req.body = { email: mockUser.email, password: mockUser.password };
-            userModel.findOne.mockResolvedValue(null);
+    it("should return 404 when email is not registered", async () => {
+      // Arrange
+      req.body = { email: mockUser.email, password: mockUser.password };
+      userModel.findOne.mockReturnValue(makeSelectQuery(null));
 
             // Act
             await loginController(req, res);
@@ -303,11 +376,13 @@ describe("authController - Profile and Orders", () => {
             });
         });
 
-        it("should return 401 when password is invalid", async () => {
-            // Arrange
-            req.body = { email: mockUser.email, password: "wrongpassword" };
-            userModel.findOne.mockResolvedValue({ ...mockUser, password: "hashedpassword" });
-            comparePassword.mockResolvedValue(false);
+    it("should return 401 when password is invalid", async () => {
+      // Arrange
+      req.body = { email: mockUser.email, password: "wrongpassword" };
+      userModel.findOne.mockReturnValue(
+        makeSelectQuery({ ...mockUser, password: "hashedpassword" }),
+      );
+      comparePassword.mockResolvedValue(false);
 
             // Act
             await loginController(req, res);
@@ -322,10 +397,15 @@ describe("authController - Profile and Orders", () => {
             });
         });
 
-        it("should return 500 if an error occurs during login", async () => {
-            // Arrange
-            req.body = { email: mockUser.email, password: mockUser.password };
-            userModel.findOne.mockRejectedValue(new Error("Database error"));
+    it("should return 500 if an error occurs during login", async () => {
+      // Arrange
+      req.body = { email: mockUser.email, password: mockUser.password };
+      userModel.findOne.mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          lean: jest.fn().mockRejectedValue(new Error("Database error")),
+        }),
+      });
+      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
             // Act
             await loginController(req, res);
@@ -337,6 +417,7 @@ describe("authController - Profile and Orders", () => {
                 success: false,
                 message: "Error during Login",
             });
+            consoleSpy.mockRestore();
         });
     });
 
@@ -459,6 +540,7 @@ describe("authController - Profile and Orders", () => {
             // Arrange
             req.body = { email: mockUser.email, answer: mockUser.answer, newPassword: "newpassword" };
             userModel.findOne.mockRejectedValue(new Error("Database error"));
+            const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
             // Act
             await forgotPasswordController(req, res);
@@ -469,6 +551,7 @@ describe("authController - Profile and Orders", () => {
                 success: false,
                 message: "Error in forgot password",
             });
+            consoleSpy.mockRestore();
         });
     });
 
@@ -502,23 +585,21 @@ describe("authController - Profile and Orders", () => {
         it("should update user profile successfully (EP: password not changed)", async () => {
             // Arrange
             req.body = { name: "John Doe", email: "john@test.com", phone: "1234567890", address: "123 Main St" };
-            const mockUser = { name: "Old Name", password: "oldpass", phone: "0000000000", address: "Old Address" };
             const mockUpdatedUser = { _id: "user123", name: "John Doe", email: "john@test.com", phone: "1234567890", address: "123 Main St" };
-            userModel.findById.mockResolvedValue(mockUser);
             userModel.findByIdAndUpdate.mockResolvedValue(mockUpdatedUser);
 
             // Act
             await updateProfileController(req, res);
 
             // Assert
-            expect(userModel.findById).toHaveBeenCalledWith("user123");
             expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
                 "user123",
                 {
-                    name: "John Doe",
-                    password: mockUser.password,
-                    phone: "1234567890",
-                    address: "123 Main St",
+                    $set: {
+                        name: "John Doe",
+                        phone: "1234567890",
+                        address: "123 Main St",
+                    },
                 },
                 { new: true }
             );
@@ -533,11 +614,10 @@ describe("authController - Profile and Orders", () => {
         it("should update password when provided and valid (EP: only password changed)", async () => {
             // Arrange
             req.body = { password: "newPassword123", name: "John" };
-            const mockUser = { name: "John", password: "oldpass", phone: "123", address: "addr" };
             const hashedPass = "hashedNewPassword";
-            userModel.findById.mockResolvedValue(mockUser);
             hashPassword.mockResolvedValue(hashedPass);
-            userModel.findByIdAndUpdate.mockResolvedValue({ ...mockUser, password: hashedPass });
+            const mockUpdatedUser = { name: "John", password: hashedPass };
+            userModel.findByIdAndUpdate.mockResolvedValue(mockUpdatedUser);
 
             // Act
             await updateProfileController(req, res);
@@ -547,10 +627,10 @@ describe("authController - Profile and Orders", () => {
             expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
                 "user123",
                 {
-                    name: "John",
-                    password: hashedPass,
-                    phone: "123",
-                    address: "addr",
+                    $set: {
+                        name: "John",
+                        password: hashedPass,
+                    },
                 },
                 { new: true }
             );
@@ -558,7 +638,7 @@ describe("authController - Profile and Orders", () => {
             expect(res.send).toHaveBeenCalledWith({
                 success: true,
                 message: "Profile Updated Successfully",
-                updatedUser: { ...mockUser, password: hashedPass },
+                updatedUser: mockUpdatedUser,
             });
         });
 
@@ -616,7 +696,7 @@ describe("authController - Profile and Orders", () => {
         it("should handle errors during update", async () => {
             // Arrange
             req.body = { name: "John" };
-            userModel.findById.mockRejectedValue(new Error("Database error"));
+            userModel.findByIdAndUpdate.mockRejectedValue(new Error("Database error"));
             jest.spyOn(console, "log").mockImplementation(() => {});
 
             // Act
@@ -632,12 +712,10 @@ describe("authController - Profile and Orders", () => {
             console.log.mockRestore()
         });
 
-        it("should preserve existing user data when fields not provided (EP: Only name changes)", async () => {
+        it("should only update provided fields (EP: Only name changes)", async () => {
             // Arrange
             req.body = { name: "New Name" };
-            const mockUser = { name: "Old Name", password: "pass", phone: "1234567890", address: "123 Main" };
-            const mockUpdatedUser = { ...mockUser, name: "New Name" };
-            userModel.findById.mockResolvedValue(mockUser);
+            const mockUpdatedUser = { name: "New Name" };
             userModel.findByIdAndUpdate.mockResolvedValue(mockUpdatedUser);
 
             // Act
@@ -646,12 +724,7 @@ describe("authController - Profile and Orders", () => {
             // Assert
             expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
                 "user123",
-                {
-                    name: "New Name",
-                    password: mockUser.password,
-                    phone: mockUser.phone,
-                    address: mockUser.address,
-                },
+                { $set: { name: "New Name" } },
                 { new: true }
             );
             expect(res.status).toHaveBeenCalledWith(200);
@@ -662,12 +735,10 @@ describe("authController - Profile and Orders", () => {
             });
         });
 
-        it("should fallback to existing name when name is not provided (EP: Name not changed)", async () => {
+        it("should only update provided fields (EP: Only phone changes)", async () => {
             // Arrange
             req.body = { phone: "9999999" };
-            const mockUser = { name: "Existing Name", password: "pass", phone: "1234567890", address: "123 Main" };
-            const mockUpdatedUser = { ...mockUser, phone: "9999999" };
-            userModel.findById.mockResolvedValue(mockUser);
+            const mockUpdatedUser = { phone: "9999999" };
             userModel.findByIdAndUpdate.mockResolvedValue(mockUpdatedUser);
 
             // Act
@@ -676,12 +747,7 @@ describe("authController - Profile and Orders", () => {
             // Assert
             expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
                 "user123",
-                {
-                    name: mockUser.name,
-                    password: mockUser.password,
-                    phone: "9999999",
-                    address: mockUser.address,
-                },
+                { $set: { phone: "9999999" } },
                 { new: true }
             );
             expect(res.status).toHaveBeenCalledWith(200);
