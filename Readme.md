@@ -17,6 +17,25 @@
     - `tests/non-functional/spike/flash-sale-spike-testing/run-flash-sale-test.js`
     - `tests/non-functional/spike/flash-sale-spike-testing/jmeter/seed-flash-sale-data.cjs`
 
+**Khoo Jing Xiang, A0252605L**
+- Performance (Load Testing)
+  - Browse Test
+    - tests/non-functional/load/01_Baseline_Browse_Manual_KhooJingXiang_A0252605L.jmx
+    - tests/non-functional/load/screenshots/01
+  - Auth Test
+    - tests/non-functional/load/02_Auth_Only_Expected_Load_KhooJingXiang_A0252605L.jmx
+    - tests/non-functional/load/screenshots/02
+  - Auth + Browse Test
+    - tests/non-functional/load/03_Auth_Plus_Browse_Mixed_Load_KhooJingXiang_A0252605L.jmx
+    - tests/non-functional/load/screenshots/03
+  - AI-driven Browse Test
+    - tests/non-functional/load/04_Browse_AI_Enhanced_KhooJingXiang_A0252605L.jmx
+    - tests/non-functional/load/screenshots/04
+  - Helper files
+    - tests/non-functional/load/browse_mix.csv
+    - tests/non-functional/load/forget.csv
+    - tests/non-functional/load/users.csv
+
 ## MS2
 
 ### Individual Contributions
