@@ -1,5 +1,22 @@
 # CS4218 Project Group 26 - Virtual Vault
 
+## MS3
+
+### Individual Contributions
+
+**Nicholas Koh Zi Lun, A0272806B**
+- Performance (Spike Testing)
+  - Concurrent Login Burst spike test
+    - `tests/performance/auth-spike-testing/jmeter/auth-spike-test.jmx`
+    - `tests/performance/auth-spike-testing/smoke-config.js`
+    - `tests/performance/auth-spike-testing/run-smoke-test.js`
+    - `tests/performance/auth-spike-testing/jmeter/seed-spike-users.cjs`
+  - Flash-Sale Product Page Surge spike test
+    - `tests/performance/flash-sale-spike-testing/jmeter/flash-sale-spike-test.jmx`
+    - `tests/performance/flash-sale-spike-testing/flash-sale-config.js`
+    - `tests/performance/flash-sale-spike-testing/run-flash-sale-test.js`
+    - `tests/performance/flash-sale-spike-testing/jmeter/seed-flash-sale-data.cjs`
+
 ## MS2
 
 ### Individual Contributions
