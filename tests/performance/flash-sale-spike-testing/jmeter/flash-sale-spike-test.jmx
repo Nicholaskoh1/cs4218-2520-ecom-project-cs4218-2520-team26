@@ -1,7 +1,7 @@
-<!-- Created by Nicholas Koh Zi Lun, A0272806B -->
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
+    <!-- Created by Nicholas Koh Zi Lun, A0272806B -->
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Flash-Sale Product Page Surge Spike Test" enabled="true">
       <stringProp name="TestPlan.comments">Simulates a sudden flash-sale announcement burst. Users flood product detail pages, photo endpoints, and cart/checkout flows simultaneously. Validates: autoscaling behaviour, queue buildup under peak, timeout behaviour, and recovery to normal latency after spike subsides. Critical saturation points: getSingleProductController (slug-indexed Mongoose find), productPhotoController (MongoDB Buffer read + Node.js stream — key event loop saturation point), relatedProductController (compound category+sort query), loginController + bcrypt + JWT (concurrent pre-checkout auth compounding with photo reads), requireSignIn middleware under burst, Braintree token endpoint (cart checkout initiation, timeout gate).</stringProp>
       <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>

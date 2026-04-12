@@ -1,7 +1,7 @@
-<!-- Created by Nicholas Koh Zi Lun, A0272806B -->
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
+    <!-- Created by Nicholas Koh Zi Lun, A0272806B -->
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Auth Spike Test Plan">
       <stringProp name="TestPlan.comments">Simulates abrupt authentication spike (promo code release scenario). Tracks token issuance latency, auth error rates, and non-auth endpoint blast radius. Exercises: loginController, bcrypt comparePassword path, JWT.sign creation, user email DB index, shared requireSignIn middleware under burst.</stringProp>
       <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>

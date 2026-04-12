@@ -37,6 +37,7 @@ console.log();
 
 // Clean up old results
 console.log("🧹 Cleaning up old results...");
+fs.mkdirSync(resultsDir, { recursive: true });
 try {
   fs.rmSync(jtlFile, { force: true });
   fs.rmSync(reportDir, { recursive: true, force: true });
@@ -78,6 +79,7 @@ try {
   });
 } catch (e) {
   console.error("❌ JMeter test failed");
+  console.error(`   Check JMeter log: ${jmeterLogFile}`);
   process.exit(1);
 }
 
