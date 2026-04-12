@@ -47,7 +47,7 @@
     - tests\non-functional\stress\analyze_results_compact_boundary.py
 
 **Emberlynn Loo Hui-E, A0255614E**
-- Performance (Stress)
+- Performance (Recovery)
   - Service Recovery After Backend Restart During Active Traffic
     - `tests/non-functional/recovery/k6-backend-restart-traffic.js`
     - `tests/non-functional/recovery/shell scripts/restart-backend.sh`
