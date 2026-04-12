@@ -1,5 +1,32 @@
 import categoryModel from "../models/categoryModel.js";
 import slugify from "slugify";
+
+const LIST_CACHE_TTL_MS = 15_000;
+const categoryListCache = {
+  payloadJson: null,
+  expiresAt: 0,
+};
+
+const clearCategoryListCache = () => {
+  categoryListCache.payloadJson = null;
+  categoryListCache.expiresAt = 0;
+};
+
+const getCachedCategoryList = () => {
+  if (categoryListCache.payloadJson && categoryListCache.expiresAt > Date.now()) {
+    return categoryListCache.payloadJson;
+  }
+  clearCategoryListCache();
+  return null;
+};
+
+const setCachedCategoryList = (payloadJson) => {
+  categoryListCache.payloadJson = payloadJson;
+  categoryListCache.expiresAt = Date.now() + LIST_CACHE_TTL_MS;
+};
+
+export const __clearCategoryListCacheForTests = clearCategoryListCache;
+
 export const createCategoryController = async (req, res) => {
   try {
     const { name } = req.body;
@@ -26,6 +53,7 @@ export const createCategoryController = async (req, res) => {
       name: normalizedName,
       slug: normalizedSlug,
     }).save();
+    clearCategoryListCache();
     res.status(201).send({
       success: true,
       message: "Category created successfully",
@@ -80,6 +108,7 @@ export const updateCategoryController = async (req, res) => {
         message: "Category not found",
       });
     }
+    clearCategoryListCache();
     res.status(200).send({
       success: true,
       message: "Category Updated Successfully",
@@ -98,12 +127,22 @@ export const updateCategoryController = async (req, res) => {
 // get all cat
 export const categoryController = async (req, res) => {
   try {
-    const category = await categoryModel.find({});
-    res.status(200).send({
+    const cachedPayloadJson = getCachedCategoryList();
+    if (cachedPayloadJson) {
+      return res
+        .status(200)
+        .type("application/json")
+        .send(cachedPayloadJson);
+    }
+
+    const category = await categoryModel.find({}).lean();
+    const payload = {
       success: true,
       message: "All Categories List",
       category,
-    });
+    };
+    setCachedCategoryList(JSON.stringify(payload));
+    res.status(200).send(payload);
   } catch (error) {
     console.log(error);
     res.status(500).send({
@@ -144,6 +183,7 @@ export const deleteCategoryController = async (req, res) => {
         message: "Category not found",
       });
     }
+    clearCategoryListCache();
     res.status(200).send({
       success: true,
       message: "Category Deleted Successfully",

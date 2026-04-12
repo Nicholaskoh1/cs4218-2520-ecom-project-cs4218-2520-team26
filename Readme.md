@@ -1,5 +1,22 @@
 # CS4218 Project Group 26 - Virtual Vault
 
+## MS3
+
+### Individual Contributions
+
+**Nicholas Koh Zi Lun, A0272806B**
+- Performance (Spike Testing)
+  - Concurrent Login Burst spike test
+    - `tests/performance/auth-spike-testing/jmeter/auth-spike-test.jmx`
+    - `tests/performance/auth-spike-testing/smoke-config.js`
+    - `tests/performance/auth-spike-testing/run-smoke-test.js`
+    - `tests/performance/auth-spike-testing/jmeter/seed-spike-users.cjs`
+  - Flash-Sale Product Page Surge spike test
+    - `tests/performance/flash-sale-spike-testing/jmeter/flash-sale-spike-test.jmx`
+    - `tests/performance/flash-sale-spike-testing/flash-sale-config.js`
+    - `tests/performance/flash-sale-spike-testing/run-flash-sale-test.js`
+    - `tests/performance/flash-sale-spike-testing/jmeter/seed-flash-sale-data.cjs`
+
 ## MS2
 
 ### Individual Contributions
@@ -16,6 +33,52 @@
   - profile-update.spec.ts
 - Unit-testing
   - Profile.test.js (added 2 test cases)
+
+**Earnest Suprapmo, A0251966U**
+- Integration (Client)
+   - CartPage.integration.test.js
+   - HomePage.integration.test.js
+- Integration (Server)
+   - productController.integration.test.js
+- End-to-End
+   - add-to-cart-checkout.spec.ts
+   - homepage-browse-product-spec.ts
+
+**Emberlynn Loo Hui-E, A0255614E**
+- Integration (Client)
+   - ProductDetails.integration.test.js
+   - CreateCategory.integration.test.js
+   - AdminOrders.integration.test.js
+- Integration (Server)
+   - productController.integration.test.js
+- End-to-End
+   - product-details.spec.js
+   - admin-product-management.js
+   
+**Khoo Jing Xiang, A0252605L**
+- Integration (Client)
+  - header-providers.integration.test.js
+  - layout-header-footer.integration.test.js
+  - searchinput-searchcontext.integration.test.js
+-End-to-End
+  - static-pages.spec.js
+  - search.spec.js
+
+
+
+**Nicholas Koh Zi Lun, A0272806B**
+- Integration (Client)
+  - Login.integration.test.js
+  - Register.integration.test.js
+  - AdminDashboard.integration.test.js
+- Integration (Server)
+  - authController
+    - registerAndLoginController.integration.test.js
+- End-to-End
+  - auth-flow.spec.ts
+  - admin-management.spec.ts
+- Unit-testing
+  - ForgotPassword.test.js
 
 
 ## MS1

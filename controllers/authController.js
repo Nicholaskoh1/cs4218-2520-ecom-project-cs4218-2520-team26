@@ -4,12 +4,28 @@ import orderModel from "../models/orderModel.js";
 import { comparePassword, hashPassword } from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
 
+const MAX_EMAIL_LENGTH = 254;
+
+const isValidEmail = (email) => {
+  if (!email || email.length > MAX_EMAIL_LENGTH) {
+    return false;
+  }
+  const atIndex = email.indexOf("@");
+  if (atIndex <= 0 || atIndex === email.length - 1) {
+    return false;
+  }
+  const lastDotIndex = email.lastIndexOf(".");
+  if (lastDotIndex <= atIndex + 1 || lastDotIndex === email.length - 1) {
+    return false;
+  }
+  return true;
+};
+
 export const registerController = async (req, res) => {
   try {
     const { name, email, password, phone, address, answer } = req.body;
     const normalizedEmail = email?.trim().toLowerCase();
-    const validEmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const validPhonePattern = /^\+?[0-9]{8,15}$/;
+    const validPhonePattern = /^\+?\d{8,15}$/;
 
     // Validations
     if (!name) {
@@ -22,7 +38,7 @@ export const registerController = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Email is Required" });
     }
-    if (!validEmailPattern.test(normalizedEmail)) {
+    if (!isValidEmail(normalizedEmail)) {
       return res.status(400).send({
         success: false,
         message: "Please enter a valid email address",
@@ -58,7 +74,9 @@ export const registerController = async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = await userModel.findOne({ email: normalizedEmail });
+    const existingUser = await userModel
+      .findOne({ email: normalizedEmail })
+      .lean();
     if (existingUser) {
       return res.status(409).send({
         success: false,
@@ -94,7 +112,6 @@ export const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
     const normalizedEmail = email?.trim().toLowerCase();
-    const validEmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     // Validation
     if (!email) {
@@ -103,7 +120,7 @@ export const loginController = async (req, res) => {
         message: "Email is required",
       });
     }
-    if (!validEmailPattern.test(normalizedEmail)) {
+    if (!isValidEmail(normalizedEmail)) {
       return res.status(400).send({
         success: false,
         message: "Please enter a valid email address",
@@ -116,7 +133,10 @@ export const loginController = async (req, res) => {
       });
     }
     // Check if user exists
-    const user = await userModel.findOne({ email: normalizedEmail });
+    const user = await userModel
+      .findOne({ email: normalizedEmail })
+      .select("_id name email phone address password role")
+      .lean();
     if (!user) {
       return res.status(401).send({
         success: false,
@@ -209,21 +229,21 @@ export const testController = (req, res) => {
 export const updateProfileController = async (req, res) => {
   try {
     const { name, email, password, address, phone } = req.body;
-    const user = await userModel.findById(req.user._id);
-    //password
+
     if (password && password.length < 6) {
       return res.status(400).json({ error: "Password is required to be at least 6 characters long" });
     }
-    const hashedPassword = password ? await hashPassword(password) : undefined;
+
+    const updateFields = {};
+    if (name) updateFields.name = name;
+    if (phone) updateFields.phone = phone;
+    if (address) updateFields.address = address;
+    if (password) updateFields.password = await hashPassword(password);
+
     const updatedUser = await userModel.findByIdAndUpdate(
       req.user._id,
-      {
-        name: name || user.name,
-        password: hashedPassword || user.password,
-        phone: phone || user.phone,
-        address: address || user.address,
-      },
-      { new: true }
+      { $set: updateFields },
+      { new: true },
     );
     res.status(200).send({
       success: true,
