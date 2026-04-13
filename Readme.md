@@ -55,7 +55,17 @@
     - `tests/non-functional/recovery/k6-db-recovery-traffic.js`
     - `tests/non-functional/recovery/inject-db-failure.js`
     - `tests/non-functional/recovery/scripts/run-recovery-test.sh`
-
+   
+**Earnest Suprapmo, A0251966U**
+- Performance (Volume)
+  - Product catalog flow
+    - tests/non-functional/volume/k6-product-catalog-performance.js
+    - tests/non-functional/volume/scripts/seed-volume-products.js
+    - tests/non-functional/volume/scripts/cleanup-volume-products.js
+  - Order History flow
+    - tests/non-functional/volume/k6-order-history-performance.js
+    - tests/non-functional/volume/scripts/seed-volume-orders.js
+    - tests/non-functional/volume/scripts/cleanup-volume-orders.js
 
 ## MS2
 
